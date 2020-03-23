@@ -36,3 +36,37 @@ list(myProcedure.Commands['myCommandName'].CommandParameters.IdNames)
 You can design a procedure in Nova 2.x but sometimes they are not compatible with the SDK. I experienced this with anything regarding the FRA/EIS module. The most simple fix is to just write the procedure in Nova 1.11 if you ecounter any compatility issues.
 If you want you can have relatively low access to the data like the actual readout of the X and Y channel of your FRA shall you ever need it.
 I added some live data output but typically just display the live data on an oscilloscope. Fell free to add that capability.
+
+# Starting a measurement
+With this code it is possibile to start an electrochemical measurement with nothing but a .json string or python dict. Starting a CV scan can be done like this:
+```python
+autolab_conf = dict(basep = r"C:\Program Files\Metrohm Autolab\Autolab SDK 1.11",
+                    procp = r"\conf\echemprocedures",
+                    hwsetupf = r"C:\ProgramData\Metrohm Autolab\12.0\HardwareSetup.AUTXXXXX.xml",
+                    micsetupf = r"C:\Program Files\Metrohm Autolab\Autolab SDK 1.11\Hardware Setup Files\Adk.bin",
+                    proceuduresd = {'cp': r'CP.nox',
+                                    'ca': r'CA.nox',
+                                    'cv': r'CV.nox',
+                                    'eis': r'EIS.nox',
+                                    'ocp': r'OCP.nox'})
+conf_cv = {'procedure': 'cv',
+           'setpoints': {
+               'FHSetSetpointPotential': {'Setpoint value':0},
+               'FHWait': {'Time':2},
+               'CVLinearScanAdc164': {'StartValue': 0.0, #V
+                                      'UpperVertex': 0.5, #V
+                                      'LowerVertex': -0.5, #V
+                                      'NumberOfStopCrossings': 2,
+                                      'ScanRate': 0.1}}, #V/s
+           'plot': 'tCV',
+           'onoffafter': 'off',
+           'safepath': r'C:\Users\Helge\OneDrive\Documents\Engineering\autolab\data',
+           'filename': 'cv.nox',
+           'parseinstructions': ['CVLinearScanAdc164']}
+                                    
+a = Autolab(autolab_conf)
+a.performMeasurement(conf_cv)
+a.disconnect()
+```
+
+This will configure the potentiostat and perform a CV measurement with a pre Potential which is held for 2 seconds. The program with save the data in the native .nox format and export the measured data as a .json file 
