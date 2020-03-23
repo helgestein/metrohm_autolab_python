@@ -1,6 +1,6 @@
 # metrohm_autolab_python
-This exemplifies how to run a Metrohm Autolab PGSTAT302N with FRA/EIS and the true linear CV option in Python using the SDK
-
+This exemplifies how to run a Metrohm Autolab PGSTAT302N with FRA/EIS and the true linear CV option in Python using the SDK.
+Use it at your own risk as this comes without any promise of use or safety.
 # Installing all the prerequisites
 Go install the SDK and make sure to install **both** the Nova 1.11 and Nova 2.x version. You will then need to install pythonnet of the latest version
 do this by
@@ -19,10 +19,20 @@ This code simply loads a predefined procedure:
 ```python
 self.proc = self.inst.LoadProcedure(self.proceduresd[name])
 ```
-
+as you might want to change some values from emasurement to measurement you need to go to the respetive commands and command parameters
 ```python
 for comm, params in setpoints.items():
     for param, value in params.items():
         self.proc.Commands[comm].CommandParameters[param].Value = value
 ```
-You can design a procedure in Nova 2.x but sometimes they are 
+Sometimes the command parameters in a procedure are named by their default values (e.g. CVLinearScanAdc164) so that you need to find out what the Command names are do this by calling:
+```python
+list(myProcedure.Commands.IdNames)
+```
+of if you want to know what you can set as setpoint call:
+```python
+list(myProcedure.Commands['myCommandName'].CommandParameters.IdNames)
+```
+You can design a procedure in Nova 2.x but sometimes they are not compatible with the SDK. I experienced this with anything regarding the FRA/EIS module. The most simple fix is to just write the procedure in Nova 1.11 if you ecounter any compatility issues.
+If you want you can have relatively low access to the data like the actual readout of the X and Y channel of your FRA shall you ever need it.
+I added some live data output but typically just display the live data on an oscilloscope. Fell free to add that capability.
